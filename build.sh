@@ -55,16 +55,15 @@ boring_log() {
 }
 
 
-#uncomment the line below if your steps require sudo, this will prompt at the beginning so you can enter your PW without it failing silently in the actions
+###uncomment the line below if your steps require sudo, this will prompt at the beginning so you can enter your PW without it failing silently in the actions
 #sudo echo "a prompt for sudo" >/dev/null
 
-run_action "mix local.rebar --force"
-run_action "mix local.hex --force"
-run_action "mix deps.get"
-run_action "mix compile --force --warnings-as-errors"
-run_action "mix test --trace --color"
+###examples of run_action
+#run_action "mix deps.get"
+#run_action "mix compile --force --warnings-as-errors"
+#run_action "mix test --trace --color"
 
-printf "\n"
-log_success "******************************\n"
-log_success "*** All Actions Succeeded! ***\n"
-log_success "******************************\n"
+#printf "\n"
+#log_success "******************************\n"
+#log_success "*** All Actions Succeeded! ***\n"
+#log_success "******************************\n"
