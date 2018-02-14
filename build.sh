@@ -54,9 +54,8 @@ boring_log() {
   printf "$1"
 }
 
-
-###uncomment the line below if your steps require sudo, this will prompt at the beginning so you can enter your PW without it failing silently in the actions
-#sudo echo "a prompt for sudo" >/dev/null
+sudo echo "a prompt for sudo" >/dev/null
+sudo apt-get install bc >/dev/null
 
 ###examples of run_action
 #run_action "mix deps.get"
