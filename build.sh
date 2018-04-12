@@ -54,15 +54,23 @@ boring_log() {
   printf "$1"
 }
 
-sudo echo "a prompt for sudo" >/dev/null
-sudo apt-get install bc >/dev/null
 
-###examples of run_action
-#run_action "mix deps.get"
-#run_action "mix compile --force --warnings-as-errors"
-#run_action "mix test --trace --color"
+require_sudo() {
+  sudo echo "a prompt for sudo" >/dev/null
+  sudo apt-get install bc >/dev/null
+}
 
-#printf "\n"
-#log_success "******************************\n"
-#log_success "*** All Actions Succeeded! ***\n"
-#log_success "******************************\n"
+script_success() {
+  printf "\n"
+  log_success "******************************\n"
+  log_success "*** All Actions Succeeded! ***\n"
+  log_success "******************************\n"
+}
+
+###example
+# require_sudo
+# run_action "mix deps.get"
+# run_action "mix compile --force --warnings-as-errors"
+# run_action "mix test --trace --color"
+# script_success
+
