@@ -60,7 +60,7 @@ require_sudo() {
   sudo apt-get install bc >/dev/null
 }
 
-script_success() {
+script_successful() {
   printf "\n"
   log_success "******************************\n"
   log_success "*** All Actions Succeeded! ***\n"
