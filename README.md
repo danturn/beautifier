@@ -5,5 +5,7 @@ e.g.
 
 ```
 . ./scripts/beautifier.sh
-run_action "mix loadconfig config/prod.exs"
+run_action "mix compile --force --warnings-as-errors"
 ```
+
+You can pass -v or --verbose to the script that sources this to always show the output
