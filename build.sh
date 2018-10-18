@@ -1,5 +1,3 @@
-#!/bin/bash
-
 spinner()
 {
   while true; do
@@ -8,22 +6,10 @@ spinner()
   done
 }
 
-run_action() {
-  action=$1
-  log_info "Running \"$action\""
-  spinner&
-  spinner_pid=$!
-  start_time=$(date +%s.%N)
-  output=$(eval $action 2>&1)
-  result=$?
-  end_time=$(date +%s.%N)
-  duration=$(echo "$(date +%s.%N) - $start_time" | bc)
-  kill $spinner_pid
-  wait $spinner_pid 2>/dev/null
-
+show_result() {
   if [[ $result != 0 ]]; then
     log_failure "failed :*(\n"
-    echo "$output"
+    echo -e "$output"
     log_failure "************************************************\n"
     log_failure "*** At least one thing in \"$action\" is broken ***\n"
     log_failure "************************************************\n"
@@ -32,6 +18,40 @@ run_action() {
     log_success "ok!"
     [[ $TERM != "dumb" ]] && printf "\e[32m (%.2f seconds)\n\e[39m" $duration || printf "(%.2f seconds)\n" $duration
   fi
+}
+
+run_clean() {
+  echo -e "$output"
+  log_info "Running \"$action\""
+  spinner&
+  spinner_pid=$!
+  output=$(eval $action 2>&1)
+  result=$?
+  kill $spinner_pid
+  wait $spinner_pid 2>/dev/null
+}
+
+run_verbose() {
+  echo ""
+  log_info "------------------------------------------------\n"
+  log_info "Running \"$action\"\n"
+  log_info "------------------------------------------------\n"
+  eval $action
+  result=$?
+  output=""
+}
+
+run_action() {
+  action=$1
+  start_time=$(date +%s.%N)
+  if [[ $VERBOSE ]]; then
+    run_verbose
+  else 
+    run_clean
+  fi
+  end_time=$(date +%s.%N)
+  duration=$(echo "$(date +%s.%N) - $start_time" | bc)
+  show_result 
 }
 
 log_failure() {
@@ -54,23 +74,12 @@ boring_log() {
   printf "$1"
 }
 
-
-require_sudo() {
-  sudo echo "a prompt for sudo" >/dev/null
-  sudo apt-get install bc >/dev/null
-}
-
-script_success() {
-  printf "\n"
-  log_success "******************************\n"
-  log_success "*** All Actions Succeeded! ***\n"
-  log_success "******************************\n"
-}
-
-###example
-# require_sudo
-# run_action "mix deps.get"
-# run_action "mix compile --force --warnings-as-errors"
-# run_action "mix test --trace --color"
-# script_success
-
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case "$key" in
+    -v|--verbose)
+      VERBOSE=true
+    ;;
+  esac
+  shift
+done
