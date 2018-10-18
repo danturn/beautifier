@@ -21,7 +21,6 @@ show_result() {
 }
 
 run_clean() {
-  echo -e "$output"
   log_info "Running \"$action\""
   spinner&
   spinner_pid=$!
