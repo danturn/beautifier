@@ -1,3 +1,5 @@
+#!/bin/bash
+
 spinner()
 {
   while true; do
@@ -45,12 +47,12 @@ run_action() {
   start_time=$(date +%s.%N)
   if [[ $VERBOSE ]]; then
     run_verbose
-  else 
+  else
     run_clean
   fi
   end_time=$(date +%s.%N)
   duration=$(echo "$(date +%s.%N) - $start_time" | bc)
-  show_result 
+  show_result
 }
 
 log_failure() {
