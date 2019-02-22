@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 spinner()
 {
@@ -6,6 +6,10 @@ spinner()
     log_success "."
     sleep 0.5
   done
+}
+
+get_time() {
+  echo $(python -c "import time; print(int(time.time()*1000))")
 }
 
 show_result() {
@@ -45,14 +49,14 @@ run_verbose() {
 
 run_action() {
   action=$1
-  start_time=$(date +%s.%N)
+  start_time=$(get_time)
   if [[ $VERBOSE ]]; then
     run_verbose
   else
     run_clean
   fi
-  end_time=$(date +%s.%N)
-  duration=$(echo "$(date +%s.%N) - $start_time" | bc)
+  end_time=$(get_time)
+  duration=$(echo "$end_time - $start_time" | bc)
   show_result
 }
 
