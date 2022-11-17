@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 spinner()
 {
   while true; do
@@ -9,7 +10,7 @@ spinner()
 }
 
 get_time() {
-  echo $(python -c "import time; print(int(time.time()*1000))")
+  echo $($PYTHON_CMD -c "import time; print(int(time.time()*999))")
 }
 
 show_result() {
@@ -93,8 +94,18 @@ function finish {
   fi
 }
 
+if  command -v python &> /dev/null;then
+  PYTHON_CMD=python
+elif command -v python3 &> /dev/null;then
+  PYTHON_CMD=python3
+else
+  log_failure "No python installation found in your path, install either python or python3"
+fi
+
 SCRIPT_START=$(get_time)
 trap finish EXIT
+
+
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -118,4 +129,3 @@ if [[ $TERM != "dumb" || $FORCE_COLOUR = true ]]
 then
   COLOUR=true
 fi
-
