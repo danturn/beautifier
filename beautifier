@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 spinner()
 {
   while true; do
@@ -46,6 +45,87 @@ run_verbose() {
   eval $action
   result=$?
   output=""
+}
+
+run_actions_concurrently() {
+  start_time=$(get_time)
+  concurrent_pids=()
+  log_concurrent_actions_starting "$@"
+  spinner&
+  spinner_pid=$!
+  for action in "$@"; do
+    run_action_concurrently "$action" &
+    this_pid=$!
+    concurrent_pids+=($this_pid)
+  done
+  wait_for_concurrent_actions_to_finish
+  kill_spinner
+  end_time=$(get_time)
+  duration=$(echo "scale=2; ($end_time - $start_time) /1000" | bc)
+  seconds=$(printf "%.2f" $duration)
+  log_success "\nconcurrent actions ok! ($seconds seconds)\n"
+}
+
+log_concurrent_actions_starting() {
+  actions_log_list=""
+  for action in "$@"; do
+    actions_log_list+="-> $action\n"
+  done
+  log_info "-----------------------\n"
+  log_info "Running concurrent actions: \n$actions_log_list"
+  log_info "-----------------------\n"
+}
+
+kill_spinner() {
+  kill $spinner_pid 2>/dev/null
+  wait $spinner_pid 2>/dev/null
+}
+
+wait_for_concurrent_actions_to_finish() {
+  for concurrent_pid in ${concurrent_pids[@]}; do
+    wait $concurrent_pid
+    concurrent_pid_exit_code=$?
+    if [ $concurrent_pid_exit_code -ne 0 ]; then
+      kill_spinner
+      kill_all_concurrent_actions
+      exit $concurrent_pid_exit_code
+    fi
+  done
+}
+
+kill_all_concurrent_actions() {
+  for concurrent_pid in ${concurrent_pids[@]}; do
+    kill $concurrent_pid 2>/dev/null
+    wait $concurrent_pid 2>/dev/null
+  done
+}
+
+run_action_concurrently() {
+  action=$1
+  start_time=$(get_time)
+  output=$(eval $action 2>&1)
+  result=$?
+  end_time=$(get_time)
+  duration=$(echo "scale=2; ($end_time - $start_time) /1000" | bc)
+  seconds=$(printf "%.2f" $duration)
+  if [ $result -eq 0 ]; then
+    if [[ $VERBOSE ]] && [[ $output != "" ]]; then
+      log_success "\n------------------------------------------------\n"
+      log_success "\"$action\" output\n"
+      log_success "------------------------------------------------\n"
+      echo -e "$output"
+    fi
+    log_success "\n$action ok! ($seconds seconds)\n"
+  else
+    kill_spinner
+    kill_all_concurrent_actions
+    log_failure "failed :*(\n"
+    echo -e "$output"
+    log_failure "************************************************\n"
+    log_failure "*** At least one thing in \"$action\" is broken ***\n"
+    log_failure "************************************************\n"
+  fi
+  return $result
 }
 
 run_action() {
